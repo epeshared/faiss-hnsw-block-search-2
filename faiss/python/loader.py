@@ -50,6 +50,23 @@ def supported_instruction_sets():
             # #define HWCAP_SVE  (1 << 22)
             return bool(__import__('ctypes').CDLL(None).getauxval(16) & (1<<22))
 
+    def is_amx_supported():
+        if platform.machine() not in ("x86_64", "AMD64", "amd64"):
+            return False
+        if platform.system() != "Linux":
+            return False
+        try:
+            import numpy.distutils.cpuinfo
+            flags = numpy.distutils.cpuinfo.cpu.info[0].get("flags", "")
+            return "amx_bf16" in flags or "amx_tile" in flags
+        except Exception:
+            try:
+                with open("/proc/cpuinfo", "r", encoding="utf-8") as handle:
+                    cpuinfo = handle.read()
+                return "amx_bf16" in cpuinfo or "amx_tile" in cpuinfo
+            except OSError:
+                return False
+
     import numpy
     if Version(numpy.__version__) >= Version("1.19"):
         # use private API as next-best thing until numpy/numpy#18058 is solved
@@ -59,6 +76,8 @@ def supported_instruction_sets():
         supported = {k for k, v in __cpu_features__.items() if v}
         if is_sve_supported():
             supported.add("SVE")
+        if is_amx_supported():
+            supported.add("AMX")
         for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").split(", \t\n\r"):
             supported.discard(f)
         return supported
@@ -77,6 +96,8 @@ def supported_instruction_sets():
         if "avx512_fp16" in numpy.distutils.cpuinfo.cpu.info[0].get('flags', ""):
             # avx512_fp16 is supported starting SPR
             result.add("AVX512_SPR")
+        if is_amx_supported():
+            result.add("AMX")
         if is_sve_supported():
             result.add("SVE")
         for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").split(", \t\n\r"):
@@ -102,6 +123,17 @@ else:
     instruction_sets.add(opt_level)
 
 loaded = False
+has_AMX = any("AMX" in x.upper() for x in instruction_sets)
+if has_AMX:
+    try:
+        logger.info("Loading faiss with AMX support.")
+        from .swigfaiss_amx import *
+        logger.info("Successfully loaded faiss with AMX support.")
+        loaded = True
+    except ImportError as e:
+        logger.info(f"Could not load library with AMX support due to:\n{e!r}")
+        loaded = False
+
 has_AVX512_SPR = any("AVX512_SPR" in x.upper() for x in instruction_sets)
 if has_AVX512_SPR:
     try:
@@ -168,6 +200,11 @@ if not loaded:
 
             f"These are the supported instruction sets on your system:\n"
             f"{formatted_ins_sets}\n"
+            f"- If 'AMX' (case insensitive) is supported on your system, "
+            f"you can set the FAISS_OPT_LEVEL=amx to build the SWIG "
+            f"wrapper with 'AMX' support.\n"
+            f"You will have to build the 'swigfaiss_amx' target in this "
+            f"case.\n"
             f"- If 'AVX512_SPR' (case insensitive) is supported on your "
             f"system, you can set the FAISS_OPT_LEVEL=avx512_spr "
             f"to build the SWIG wrapper with 'AVX512-SPR' support.\n"

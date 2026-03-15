@@ -682,7 +682,7 @@ int search_from_candidates(
         }
 
         int counter = 0;
-        size_t saved_j[4];
+        idx_t saved_j[16];
 
         threshold = res.threshold;
 
@@ -698,13 +698,29 @@ int search_from_candidates(
             candidates.push(idx, dis);
         };
 
+    #ifdef FAISS_USE_AMX
+        const bool use_batch16 = level == 0;
+    #else
+        const bool use_batch16 = false;
+    #endif
+
         for (size_t j = begin; j < jmax; j++) {
             int v1 = hnsw.neighbors[j];
 
             saved_j[counter] = v1;
             counter += vt.set(v1) ? 1 : 0;
 
-            if (counter == 4) {
+            if (use_batch16 && counter == 16) {
+                float dis[16];
+                qdis.distances_batch_16(saved_j, 16, dis);
+
+                for (size_t id16 = 0; id16 < 16; id16++) {
+                    add_to_heap(saved_j[id16], dis[id16]);
+                }
+
+                ndis += 16;
+                counter = 0;
+            } else if (!use_batch16 && counter == 4) {
                 float dis[4];
                 qdis.distances_batch_4(
                         saved_j[0],
@@ -721,15 +737,34 @@ int search_from_candidates(
                 }
 
                 ndis += 4;
-
                 counter = 0;
             }
         }
 
-        for (size_t icnt = 0; icnt < counter; icnt++) {
+        int tail_offset = 0;
+        if (use_batch16) {
+            for (; tail_offset + 3 < counter; tail_offset += 4) {
+                float dis[4];
+                qdis.distances_batch_4(
+                        saved_j[tail_offset + 0],
+                        saved_j[tail_offset + 1],
+                        saved_j[tail_offset + 2],
+                        saved_j[tail_offset + 3],
+                        dis[0],
+                        dis[1],
+                        dis[2],
+                        dis[3]);
+
+                for (size_t id4 = 0; id4 < 4; ++id4) {
+                    add_to_heap(saved_j[tail_offset + id4], dis[id4]);
+                }
+                ndis += 4;
+            }
+        }
+
+        for (size_t icnt = tail_offset; icnt < counter; icnt++) {
             float dis = qdis(saved_j[icnt]);
             add_to_heap(saved_j[icnt], dis);
-
             ndis += 1;
         }
 

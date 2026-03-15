@@ -1,0 +1,17 @@
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/edit_cache.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/rebuild_cache.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/list_install_components.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/install.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/install/local.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/CMakeFiles/install/strip.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/faiss.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/faiss_avx2.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/faiss_avx512.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/faiss_avx512_spr.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/faiss_sve.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/edit_cache.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/rebuild_cache.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/list_install_components.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/install.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/install/local.dir
+/nvme5/xtang/vdb-workspace/faiss-hnsw-block-search-2/build-amx-check/faiss/CMakeFiles/install/strip.dir
